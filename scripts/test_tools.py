@@ -1,5 +1,5 @@
 import asyncio
-from mcp_client import get_mcp_tools
+from src.mcp import get_mcp_tools
 
 
 async def main():

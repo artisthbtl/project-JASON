@@ -1,0 +1,7 @@
+langchain
+langgraph
+langchain-aws
+boto3
+langchain-mcp-adapters
+python-dotenv
+langgraph-cli[inmem]

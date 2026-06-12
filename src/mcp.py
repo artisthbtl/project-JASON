@@ -4,7 +4,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 async def get_mcp_tools():
     client = MultiServerMCPClient(
         {
-            "AWS MCP Server": {
+            "aws": {
                 "command": "uvx",
                 "args": [
                     "mcp-proxy-for-aws@latest",
@@ -15,6 +15,4 @@ async def get_mcp_tools():
         }
     )
 
-    tools = await client.get_tools()
-
-    return tools
+    return await client.get_tools()
