@@ -1,5 +1,3 @@
-# scripts/test_agent.py
-
 import asyncio
 from langchain_core.messages import HumanMessage
 

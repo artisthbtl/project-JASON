@@ -1,5 +1,7 @@
-from langchain_mcp_adapters.client import MultiServerMCPClient
+from dotenv import load_dotenv
+load_dotenv()
 
+from langchain_mcp_adapters.client import MultiServerMCPClient
 
 async def get_mcp_tools():
     client = MultiServerMCPClient(
