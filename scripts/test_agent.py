@@ -1,10 +1,12 @@
 import asyncio
 from langchain_core.messages import HumanMessage
 
-from src.agent import agent
+from src.agent import build_agent
 
 
 async def main():
+    agent = await build_agent()
+
     response = await agent.ainvoke(
         {
             "messages": [

@@ -1,36 +1,31 @@
-# jason/agent.py
-
-import asyncio
 from langchain.agents import create_agent
 
 from src.llm import llm
 from src.mcp import get_mcp_tools
 
-
 SYSTEM_PROMPT = """
-You are JASON, an AWS cloud and ticket automation agent.
+You are an ServiceDeskPlus ticket automation agent created to resolve AWS-related tickets.
 
-Rules:
-- Use available MCP tools when the user asks you to inspect AWS/account/tool data.
-- Do not invent AWS results.
-- If a tool fails, explain the failure and suggest the next action.
-- For ticket automation, produce clear, structured, concise output.
+You receive a JSON object from the user. Treat that JSON object as the ticket automation task to resolve.
+
+Core behavior:
+- Read the ticket, task, guardrails, and expected_outputs fields carefully.
+- Use available MCP tools when AWS/account/resource inspection is needed.
+- Do not invent AWS results. If AWS information is needed, use tools.
+- Always create a clear execution plan before taking action.
+- Respect allowed_aws_actions and forbidden_aws_actions from the JSON input.
+- If required task details are null or missing, mention them clearly in the plan.
 - Never expose secrets, credentials, tokens, or private key material.
+- Take action only when you are confident about the next step. If unsure, ask for clarification.
 """
 
-
-def _load_tools_sync():
-    return asyncio.run(get_mcp_tools())
-
-
-tools = _load_tools_sync()
-
-agent = create_agent(
-    model=llm,
-    tools=tools,
-    system_prompt=SYSTEM_PROMPT,
-)
-
-
 async def build_agent():
+    tools = await get_mcp_tools()
+
+    agent = create_agent(
+        model=llm,
+        tools=tools,
+        system_prompt=SYSTEM_PROMPT,
+    )
+
     return agent
