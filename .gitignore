@@ -5,4 +5,3 @@ __pycache__/
 .langgraph_api/
 .vscode/
 sdp-request.json
-schema/
