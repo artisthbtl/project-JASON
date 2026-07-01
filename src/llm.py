@@ -12,7 +12,7 @@ loaded = load_dotenv(dotenv_path=ENV_PATH, override=True)
 AWS_REGION = os.getenv("AWS_REGION", os.getenv("AWS_DEFAULT_REGION", "ap-southeast-1"))
 BEDROCK_MODEL_ID = os.getenv(
     "BEDROCK_MODEL_ID",
-    "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "global.anthropic.claude-sonnet-4-6",
 )
 BEDROCK_MAX_TOKENS = int(os.getenv("BEDROCK_MAX_TOKENS", "4096"))
 

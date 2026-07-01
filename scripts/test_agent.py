@@ -1,27 +1,25 @@
 import asyncio
 import sys
+import time
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.db import finish_ticket_job, init_db, upsert_ticket_job, update_ticket_status
 from src.workflow import build_workflow
 
 ticket_input = {
     "instruction": "Treat this JSON as a ServiceDeskPlus AWS ticket automation task. Plan the work, use AWS MCP tools when needed, and produce the expected outputs.",
+    "name": "WAF Creation Request",
     "ticket": {
-        "source_system": "servicedeskplus",
-        "ticket_id": "423033",
+        "ticket_id": "443123",
         "subject": "Request waf",
-        "status": "Closed",
+        "status": "Open",
         "template": "Cloud-WAF Create-Modify Rule",
-        "request_type": "Service Request",
-        "category": "Server",
         "service_category": "Security",
         "priority": "Medium",
-        "impact": "Medium",
-        "urgency": "Medium",
         "group": "Security Administrator",
         "requester": {
             "name": "Ario Singgih Permana",
@@ -36,168 +34,28 @@ ticket_input = {
         },
     },
     "task": {
-        "task_type": "aws_waf_create",
-        "service": "wafv2",
-        "operation": "create_web_acl",
-        "description": "Create AWS WAF Web ACLs for the requested non-production application resources.",
         "resources": [
             {
-            "account_alias": "jci ho non prod",
-            "account_id": "948097794244",
-            "region": "ap-southeast-1",
-            "scope": "REGIONAL",
-            "waf_name": "twaf-admin",
-            "rules": {
-                "type": "aws_managed_rule_groups",
-                "default_action": "allow",
-                "managed_rule_groups": [
-                {
-                    "priority": 0,
-                    "policy_rule_name": "AWS-AWSManagedRulesAmazonIpReputationList",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesAmazonIpReputationList",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 1,
-                    "policy_rule_name": "AWS-AWSManagedRulesAnonymousIpList",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesAnonymousIpList",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 2,
-                    "policy_rule_name": "AWS-AWSManagedRulesLinuxRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesLinuxRuleSet",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 3,
-                    "policy_rule_name": "AWS-AWSManagedRulesCommonRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesCommonRuleSet",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 4,
-                    "policy_rule_name": "AWS-AWSManagedRulesKnownBadInputsRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesKnownBadInputsRuleSet",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 5,
-                    "policy_rule_name": "AWS-AWSManagedRulesPHPRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesPHPRuleSet",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 6,
-                    "policy_rule_name": "AWS-AWSManagedRulesSQLiRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesSQLiRuleSet",
-                    "override_action": "none"
-                }
-                ]
-            }
+                "account_id": "948097794244",
+                "waf_name": "twaf",
             },
             {
-            "account_alias": "jci ho non prod",
-            "account_id": "948097794244",
-            "region": "ap-southeast-1",
-            "scope": "REGIONAL",
-            "waf_name": "twaf",
-            "rules": {
-                "type": "aws_managed_rule_groups",
-                "default_action": "allow",
-                "managed_rule_groups": [
-                {
-                    "priority": 0,
-                    "policy_rule_name": "AWS-AWSManagedRulesAmazonIpReputationList",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesAmazonIpReputationList",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 1,
-                    "policy_rule_name": "AWS-AWSManagedRulesAnonymousIpList",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesAnonymousIpList",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 2,
-                    "policy_rule_name": "AWS-AWSManagedRulesLinuxRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesLinuxRuleSet",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 3,
-                    "policy_rule_name": "AWS-AWSManagedRulesCommonRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesCommonRuleSet",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 4,
-                    "policy_rule_name": "AWS-AWSManagedRulesKnownBadInputsRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesKnownBadInputsRuleSet",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 5,
-                    "policy_rule_name": "AWS-AWSManagedRulesPHPRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesPHPRuleSet",
-                    "override_action": "none"
-                },
-                {
-                    "priority": 6,
-                    "policy_rule_name": "AWS-AWSManagedRulesSQLiRuleSet",
-                    "vendor_name": "AWS",
-                    "managed_rule_group_name": "AWSManagedRulesSQLiRuleSet",
-                    "override_action": "none"
-                }
-                ]
-            }
-            }
+                "account_id": "948097794244",
+                "waf_name": "twaf-admin",
+            },
         ],
-    },
-    "guardrails": {
-        "allowed_aws_actions": [
-            "wafv2:ListWebACLs",
-            "wafv2:GetWebACL",
-            "wafv2:CreateWebACL",
-            "wafv2:AssociateWebACL",
-            "sts:GetCallerIdentity",
-        ],
-        "forbidden_aws_actions": [
-            "wafv2:DeleteWebACL",
-            "iam:*",
-            "organizations:*",
-            "account:*",
-        ],
-        "must_run_plan_before_execution": True,
-    },
-    "expected_outputs": {
-        "planning_output_required": True,
-        "execution_summary_required": True,
-        "ticket_resolution_required": True,
-        "ticket_resolution_format": {
-            "include_resource_name": True,
-            "include_resource_arn": True,
-            "include_region": True,
-            "include_account_id": True,
-            "include_policy_baseline_used": True,
-        },
     },
 }
 
+
 async def main():
+    init_db()
+
+    ticket_id = ticket_input["ticket"]["ticket_id"]
+    upsert_ticket_job(ticket_id, status="received")
+    update_ticket_status(ticket_id, status="running")
+    workflow_started_at = time.perf_counter()
+
     workflow = await build_workflow()
 
     config = {
@@ -210,6 +68,10 @@ async def main():
         {"ticket_input": ticket_input},
         config=config,
     )
+
+    resolution_time = time.perf_counter() - workflow_started_at
+    final_status = response.get("workflow_status", "unknown")
+    finish_ticket_job(ticket_id, status=final_status, resolution_time_seconds=resolution_time)
 
     print("\nWorkflow status:\n")
     print(response.get("workflow_status"))

@@ -1,86 +1,30 @@
 {
-  "schema_version": "1.0",
-  "name": "WAF Creation Schema",
   "ticket": {
-    "source_system": "servicedeskplus",
-    "ticket_id": "<ticket_id>",
-    "subject": "<ticket_subject>",
-    "status": "<ticket_status>",
-    "template": "Cloud-WAF Create-Modify Rule",
-    "request_type": "Service Request",
-    "service_category": "Security",
-    "priority": "<priority>",
-    "impact": "<impact>",
-    "urgency": "<urgency>",
-    "group": "<assigned_group>",
+    "ticket_id": "service_desk_plus_ticket_id",
+    "subject": "ticket_subject",
+    "status": "ticket_status",
+    "template": "service_desk_plus_template_name",
+    "service_category": "ticket_service_category",
+    "priority": "ticket_priority",
+    "group": "assigned_group_name",
     "requester": {
-      "name": "<requester_name>",
-      "email": "<requester_email>",
-      "department": "<requester_department>",
-      "site": "<requester_site>"
+      "name": "requester_full_name",
+      "email": "requester_email_address",
+      "department": "requester_department",
+      "site": "requester_site_or_location"
     },
     "technician": {
-      "name": "<technician_name>",
-      "email": "<technician_email>",
-      "group": "<technician_group>"
+      "name": "technician_full_name",
+      "email": "technician_email_address",
+      "group": "technician_group_name"
     }
   },
   "task": {
-    "task_type": "aws_waf_create",
-    "service": "wafv2",
-    "operation": "create_web_acl",
-    "description": "Create AWS WAF Web ACLs for the requested application resources.",
     "resources": [
       {
-        "account_alias": "<aws_account_alias>",
-        "account_id": "<aws_account_id>",
-        "region": "<aws_region>",
-        "scope": "REGIONAL",
-        "waf_name": "<waf_name>",
-        "rules": [
-          {
-            "type": "<rule_type>",
-            "default_action": "allow",
-            "managed_rule_groups": [
-              {
-                "priority": "<priority>",
-                "policy_rule_name": "<rule_name>",
-                "vendor_name": "AWS",
-                "managed_rule_group_name": "<rule_group_name>",
-                "override_action": "<override_action>"
-              }
-            ]
-          }
-        ]
+        "account_id": "aws_account_id",
+        "waf_name": "waf_web_acl_name"
       }
     ]
-  },
-  "guardrails": {
-    "allowed_aws_actions": [
-      "wafv2:ListWebACLs",
-      "wafv2:GetWebACL",
-      "wafv2:CreateWebACL",
-      "wafv2:AssociateWebACL",
-      "sts:GetCallerIdentity"
-    ],
-    "forbidden_aws_actions": [
-      "wafv2:DeleteWebACL",
-      "iam:*",
-      "organizations:*",
-      "account:*"
-    ],
-    "must_run_plan_before_execution": true
-  },
-  "expected_outputs": {
-    "planning_output_required": true,
-    "execution_summary_required": true,
-    "ticket_resolution_required": true,
-    "ticket_resolution_format": {
-      "include_resource_name": true,
-      "include_resource_arn": true,
-      "include_region": true,
-      "include_account_id": true,
-      "include_policy_baseline_used": true
-    }
   }
 }

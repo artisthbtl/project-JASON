@@ -1,0 +1,96 @@
+{
+  "schema_name": "WAF Creation Request",
+  "task_type": "aws_waf_create",
+  "service": "wafv2",
+  "operation": "create_web_acl",
+  "description": "Create AWS WAFv2 Web ACLs for requested resources using company baseline settings.",
+  "match": {
+    "servicedeskplus_templates": [
+      "Cloud-WAF Create-Modify Rule",
+      "WAF Creation Request"
+    ]
+  },
+  "defaults": {
+    "region": "ap-southeast-1",
+    "scope": "REGIONAL",
+    "default_action": "allow"
+  },
+  "required_resource_fields": [
+    "account_id",
+    "waf_name"
+  ],
+  "resource_defaults": {
+    "managed_rule_groups": [
+      {
+        "priority": 0,
+        "vendor_name": "AWS",
+        "name": "AWSManagedRulesAmazonIpReputationList",
+        "override_action": "none"
+      },
+      {
+        "priority": 1,
+        "vendor_name": "AWS",
+        "name": "AWSManagedRulesAnonymousIpList",
+        "override_action": "none"
+      },
+      {
+        "priority": 2,
+        "vendor_name": "AWS",
+        "name": "AWSManagedRulesLinuxRuleSet",
+        "override_action": "none"
+      },
+      {
+        "priority": 3,
+        "vendor_name": "AWS",
+        "name": "AWSManagedRulesCommonRuleSet",
+        "override_action": "none"
+      },
+      {
+        "priority": 4,
+        "vendor_name": "AWS",
+        "name": "AWSManagedRulesKnownBadInputsRuleSet",
+        "override_action": "none"
+      },
+      {
+        "priority": 5,
+        "vendor_name": "AWS",
+        "name": "AWSManagedRulesPHPRuleSet",
+        "override_action": "none"
+      },
+      {
+        "priority": 6,
+        "vendor_name": "AWS",
+        "name": "AWSManagedRulesSQLiRuleSet",
+        "override_action": "none"
+      }
+    ]
+  },
+  "planning_rules": {
+    "read_only_checks": [
+      "verify AWS caller identity",
+      "check whether each requested resource already exists",
+      "verify target service is available in the target region"
+    ]
+  },
+  "execution_rules": {
+    "do": [
+      "create one Web ACL for each requested resource",
+      "use exact resource names from the ticket",
+      "use default region and scope when absent from the ticket",
+      "capture the created resource ARN from tool output"
+    ],
+    "do_not": [
+      "delete existing resources",
+      "replace existing resources",
+      "associate the Web ACL to ALB, API Gateway, CloudFront, or other targets unless explicitly requested",
+      "modify IAM, AWS Organizations, or account-level settings"
+    ]
+  },
+  "resolution": {
+    "required_fields": [
+      "resource_name",
+      "resource_arn"
+    ],
+    "format": "{resource_name}: {resource_arn}"
+  }
+}

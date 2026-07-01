@@ -1,0 +1,7 @@
+{
+  "aliases": {
+    "WAF Creation Request": "waf_creation_request",
+    "Cloud-WAF Create-Modify Rule": "waf_creation_request",
+    "aws_waf_create": "waf_creation_request"
+  }
+}
