@@ -14,8 +14,10 @@ class AgentState(TypedDict, total=False):
     # Compact model-facing context for the planning node only.
     planner_context: dict[str, Any]
 
-    # Optional message history/debug fields.
+    # Runtime/debug fields.
+    verbose: bool
     messages: List[Any]
+    token_usage: dict[str, Any]
 
     # planning_read_only output. This is the only task source for the executor.
     execution_plan: dict[str, Any]

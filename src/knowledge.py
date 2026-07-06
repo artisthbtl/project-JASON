@@ -22,22 +22,56 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _normalized_payload(ticket_input: dict[str, Any]) -> dict[str, Any]:
+    """Return the generic SDP normalized payload when the engine envelope is used."""
+    normalized_input = ticket_input.get("normalized_input")
+    if isinstance(normalized_input, dict):
+        return normalized_input
+    return ticket_input
+
+
+def _embedded_policy(ticket_input: dict[str, Any]) -> dict[str, Any]:
+    policy = ticket_input.get("policy")
+    return policy if isinstance(policy, dict) else {}
+
+
+def _raw_task(ticket_input: dict[str, Any]) -> dict[str, Any]:
+    task = ticket_input.get("task")
+    return task if isinstance(task, dict) else {}
+
+
+def _raw_resources(ticket_input: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return workflow resources without changing the public engine input shape."""
+    normalized_input = ticket_input.get("normalized_input")
+    if isinstance(normalized_input, dict):
+        description = normalized_input.get("description")
+        rows = description.get("rows") if isinstance(description, dict) else []
+        return [copy.deepcopy(row) for row in rows if isinstance(row, dict)]
+
+    task = _raw_task(ticket_input)
+    resources = task.get("resources") or []
+    return [copy.deepcopy(resource) for resource in resources if isinstance(resource, dict)]
+
+
 def _candidate_schema_names(ticket_input: dict[str, Any]) -> list[str]:
     """
     Return schema identifiers in priority order.
 
-    Future ServiceDeskPlus catalog/template names should be mapped here through
-    either ticket_input["name"], ticket["request_schema"], ticket["template"],
-    or task["task_type"].
+    Supports both the old manual test shape and the current engine envelope:
+    {"normalized_input": {"ticket": ..., "description": ...}, "policy": ...}.
     """
-    ticket = ticket_input.get("ticket", {}) or {}
-    task = ticket_input.get("task", {}) or {}
+    normalized = _normalized_payload(ticket_input)
+    ticket = normalized.get("ticket", {}) or {}
+    task = _raw_task(ticket_input)
+    policy = _embedded_policy(ticket_input)
 
     candidates = [
         ticket_input.get("name"),
         ticket.get("request_schema"),
         ticket.get("template"),
         task.get("task_type"),
+        policy.get("schema_name"),
+        policy.get("task_type"),
     ]
 
     return [str(item).strip() for item in candidates if item]
@@ -83,7 +117,8 @@ def _compact_person(person: dict[str, Any]) -> dict[str, Any]:
 
 
 def _compact_ticket(ticket_input: dict[str, Any]) -> dict[str, Any]:
-    ticket = ticket_input.get("ticket", {}) or {}
+    normalized = _normalized_payload(ticket_input)
+    ticket = normalized.get("ticket", {}) or {}
     requester = ticket.get("requester", {}) or {}
     technician = ticket.get("technician", {}) or {}
 
@@ -149,8 +184,8 @@ def build_planner_context(
     the planner needs to create an execution plan. Workflow-control values such
     as approval status, document key, and graph routing stay in LangGraph state.
     """
-    raw_task = ticket_input.get("task", {}) or {}
-    raw_resources = raw_task.get("resources", []) or []
+    raw_task = _raw_task(ticket_input)
+    raw_resources = _raw_resources(ticket_input)
     resources = [_merge_resource_defaults(resource, task_document) for resource in raw_resources]
     required_resource_fields = task_document.get("required_resource_fields", []) or []
 
